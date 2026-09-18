@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LJ Sari-Sari Store</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="page-shell">
+        <header class="hero">
+            <div class="hero-left">
+                <p class="eyebrow">Neighborhood essentials</p>
+                <h1>RC Sari-Sari Store</h1>
+                <p class="hero-text">Everyday favorites and quick treats, all in one place.</p>
+            </div>
+            <div class="hero-right">
+                <div class="hero-card">
+                    <h2>Your cart</h2>
+                    <p id="cart-summary">0 items selected</p>
+                </div>
+                <button class="admin-btn" onclick="openLoginModal()">Admin</button>
+            </div>
+        </header>
+
+        <!-- Login Modal -->
+        <div id="loginModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Admin Login</h2>
+                    <button class="close-btn" onclick="closeLoginModal()">&times;</button>
+                </div>
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" required placeholder="Enter username">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" required placeholder="Enter password">
+                    </div>
+                    <button type="submit" class="login-btn">Login</button>
+                </form>
+            </div>
+        </div>
+
+        <main class="content-grid">
+            <section class="products-panel">
+                <div class="section-heading">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h2>Popular items</h2>
+                            <p>Pick your favorites and add them to your cart.</p>
+                        </div>
+                        <button id="addNewItemBtn" class="add-new-item-btn" onclick="openAddItemModal()" style="display: none;">+ Add Item</button>
+                    </div>
+                </div>
+                <div id="products" class="products-grid"></div>
+            </section>
+
+            <aside class="cart-panel">
+                <div class="section-heading">
+                    <h2>Cart</h2>
+                    <p>Review your order before checkout.</p>
+                </div>
+                <div id="cart" class="cart-items"></div>
+                <div class="cart-footer">
+                    <div class="total-row">
+                        <span>Total</span>
+                        <strong id="total">₱0</strong>
+                    </div>
+                    <button class="checkout-btn" type="button">Checkout</button>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Add Item Modal -->
+        <div id="addItemModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Add New Item</h2>
+                    <button class="close-btn" onclick="closeAddItemModal()">&times;</button>
+                </div>
+                <form id="addItemForm" onsubmit="handleAddItem(event)">
+                    <div class="form-group">
+                        <label for="itemName">Item Name</label>
+                        <input type="text" id="itemName" required placeholder="e.g., Sprite">
+                    </div>
+                    <div class="form-group">
+                        <label for="itemPrice">Price (₱)</label>
+                        <input type="number" id="itemPrice" required placeholder="e.g., 50" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="itemCategory">Category</label>
+                        <input type="text" id="itemCategory" required placeholder="e.g., Drinks">
+                    </div>
+                    <div class="form-group">
+                        <label for="itemImage">Image</label>
+                        <input type="file" id="itemImage" required accept="image/*" placeholder="Choose an image">
+                    </div>
+                    <button type="submit" class="add-item-btn">Add Item</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="products.js"></script>
+    <script src="cart.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
