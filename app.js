@@ -27,10 +27,6 @@ let searchTerm = "";
 // Admin session state
 let isAdminLoggedIn = false;
 
-// Admin credentials
-const ADMIN_USERNAME = "admin";
-const ADMIN_PASSWORD = "12345";
-const ORDERS_STORAGE_KEY = "sariSariOrders";
 const THEME_STORAGE_KEY = "sariSariTheme";
 
 function applyTheme(theme) {
@@ -210,7 +206,7 @@ function checkout() {
     customerModal.style.display = "block";
 }
 
-function completeCheckout(event) {
+async function completeCheckout(event) {
     event.preventDefault();
 
     const orderItems = cart.map(item => ({ ...item }));
@@ -223,9 +219,17 @@ function completeCheckout(event) {
         address: document.getElementById("customerAddress").value.trim()
     };
     const order = { orderNumber, orderDate, customer, items: orderItems, total };
-    const orders = JSON.parse(localStorage.getItem(ORDERS_STORAGE_KEY) || "[]");
-    orders.unshift(order);
-    localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(orders));
+
+    try {
+        await firestore.collection("orders").doc(orderNumber).set({
+            ...order,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    } catch (error) {
+        console.error("Unable to save order to Firestore:", error);
+        alert("The order could not be saved. Please check your internet connection and try again.");
+        return;
+    }
 
     receiptContainer.innerHTML = `
         <div class="receipt-meta">
@@ -283,32 +287,39 @@ function closeLoginModal() {
     loginForm.reset();
 }
 
-function handleLogin(event) {
+async function handleLogin(event) {
     event.preventDefault();
 
-    const username = document.getElementById("username").value;
+    const email = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value;
 
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    try {
+        await firebaseAuth.signInWithEmailAndPassword(email, password);
         isAdminLoggedIn = true;
         addNewItemBtn.style.display = "block";
         ordersBtn.style.display = "block";
         displayProducts();
         alert("Login successful!");
         closeLoginModal();
-    } else {
-        alert("Invalid username or password!");
+    } catch (error) {
+        console.error("Admin login failed:", error);
+        alert("Invalid email or password.");
         loginForm.reset();
     }
 }
 
-function openOrdersModal() {
+async function openOrdersModal() {
     if (!isAdminLoggedIn) return;
 
-    const orders = JSON.parse(localStorage.getItem(ORDERS_STORAGE_KEY) || "[]");
-    ordersList.innerHTML = orders.length === 0
-        ? '<div class="empty-state">No customer orders yet.</div>'
-        : orders.map(order => `
+    ordersList.innerHTML = '<div class="empty-state">Loading customer orders...</div>';
+    ordersModal.style.display = "block";
+
+    try {
+        const snapshot = await firestore.collection("orders").orderBy("createdAt", "desc").get();
+        const orders = snapshot.docs.map(documentSnapshot => documentSnapshot.data());
+        ordersList.innerHTML = orders.length === 0
+            ? '<div class="empty-state">No customer orders yet.</div>'
+            : orders.map(order => `
             <details class="order-card">
                 <summary class="order-summary">${order.customer.name}</summary>
                 <div class="order-details">
@@ -328,30 +339,30 @@ function openOrdersModal() {
                 </div>
             </details>
         `).join("");
-
-    ordersModal.style.display = "block";
+    } catch (error) {
+        console.error("Unable to load orders from Firestore:", error);
+        ordersList.innerHTML = '<div class="empty-state">Orders could not be loaded. Check your Firestore rules and connection.</div>';
+    }
 }
 
-function deleteOrder(orderNumber) {
+async function deleteOrder(orderNumber) {
     if (!isAdminLoggedIn) return;
 
     if (!confirm("Delete this customer order permanently?")) return;
 
-    const orders = JSON.parse(localStorage.getItem(ORDERS_STORAGE_KEY) || "[]");
-    const remainingOrders = orders.filter(order => order.orderNumber !== orderNumber);
-    localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(remainingOrders));
+    await firestore.collection("orders").doc(orderNumber).delete();
     openOrdersModal();
 }
 
-function clearAllOrders() {
+async function clearAllOrders() {
     if (!isAdminLoggedIn) return;
-
-    const orders = JSON.parse(localStorage.getItem(ORDERS_STORAGE_KEY) || "[]");
-    if (orders.length === 0) return;
 
     if (!confirm("Delete all customer orders permanently?")) return;
 
-    localStorage.removeItem(ORDERS_STORAGE_KEY);
+    const snapshot = await firestore.collection("orders").get();
+    const batch = firestore.batch();
+    snapshot.docs.forEach(documentSnapshot => batch.delete(documentSnapshot.ref));
+    await batch.commit();
     openOrdersModal();
 }
 
