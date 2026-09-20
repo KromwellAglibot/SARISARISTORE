@@ -8,20 +8,37 @@
 </head>
 <body>
     <div class="page-shell">
-        <header class="hero">
-            <div class="hero-left">
-                <p class="eyebrow">Neighborhood essentials</p>
-                <h1>RC Sari-Sari Store</h1>
-                <p class="hero-text">Everyday favorites and quick treats, all in one place.</p>
-            </div>
-            <div class="hero-right">
-                <div class="hero-card">
-                    <h2>Your cart</h2>
-                    <p id="cart-summary">0 items selected</p>
-                </div>
-                <button class="admin-btn" onclick="openLoginModal()">Admin</button>
+        <header class="store-header">
+            <a class="brand" href="#top" aria-label="RC Sari-Sari Store home">
+                <span class="brand-mark">RC</span>
+                <span class="brand-copy">
+                    <strong>RC Sari-Sari</strong>
+                    <small>Everyday Market</small>
+                </span>
+            </a>
+            <form id="searchForm" class="store-search" onsubmit="handleSearch(event)">
+                <input id="searchInput" type="search" placeholder="Search drinks, snacks, pantry items..." aria-label="Search products">
+                <button type="submit"><span aria-hidden="true">⌕</span> Search</button>
+            </form>
+            <div class="store-actions">
+                <span class="store-status"><span class="status-dot"></span> Open today</span>
+                <button id="themeToggle" class="theme-toggle" type="button" onclick="toggleTheme()" aria-label="Switch to night mode" title="Switch to night mode"><span aria-hidden="true">🌙</span><span class="theme-toggle-label">Night</span></button>
+                <button id="adminBtn" class="admin-btn" type="button"><span aria-hidden="true">♙</span> Admin</button>
+                <button id="ordersBtn" class="orders-btn" onclick="openOrdersModal()" style="display: none;"><span aria-hidden="true">▤</span> View Orders</button>
             </div>
         </header>
+
+        <section class="promo-bar" id="top">
+            <div>
+                <span class="promo-label">TODAY'S MARKET RUN</span>
+                <h1>Good prices for everyday living.</h1>
+                <p>Quick snacks, pantry staples, and neighborhood favorites in one easy stop.</p>
+            </div>
+            <div class="promo-ticket">
+                <span>Your basket</span>
+                <strong id="cart-summary">0 items selected</strong>
+            </div>
+        </section>
 
         <!-- Login Modal -->
         <div id="loginModal" class="modal">
@@ -44,35 +61,95 @@
             </div>
         </div>
 
-        <main class="content-grid">
-            <section class="products-panel">
-                <div class="section-heading">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <h2>Popular items</h2>
-                            <p>Pick your favorites and add them to your cart.</p>
-                        </div>
-                        <button id="addNewItemBtn" class="add-new-item-btn" onclick="openAddItemModal()" style="display: none;">+ Add Item</button>
+        <!-- Customer Details Modal -->
+        <div id="customerModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Customer Details</h2>
+                    <button class="close-btn" onclick="closeCustomerModal()">&times;</button>
+                </div>
+                <form id="customerForm" onsubmit="completeCheckout(event)">
+                    <div class="form-group">
+                        <label for="customerName">Customer name</label>
+                        <input type="text" id="customerName" required placeholder="Enter customer name">
                     </div>
+                    <div class="form-group">
+                        <label for="customerContact">Contact number</label>
+                        <input type="tel" id="customerContact" required placeholder="Enter contact number">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerAddress">Address</label>
+                        <input type="text" id="customerAddress" required placeholder="Enter customer address">
+                    </div>
+                    <button type="submit" class="login-btn">Continue Checkout</button>
+                </form>
+            </div>
+        </div>
+
+        <main class="content-grid" id="shop">
+            <section class="products-panel">
+                <div class="section-heading product-heading">
+                    <div>
+                        <span class="section-kicker">Shop by category</span>
+                        <h2>Popular items</h2>
+                        <p>Pick your favorites and build your basket.</p>
+                    </div>
+                    <button id="addNewItemBtn" class="add-new-item-btn" onclick="openAddItemModal()" style="display: none;"><span aria-hidden="true">＋</span> Add Item</button>
+                </div>
+                <div class="category-tabs" aria-label="Product categories">
+                </div>
+                <div class="catalog-toolbar">
+                    <span id="catalogStatus">Showing all available items</span>
+                    <span class="catalog-count">Fresh picks for today</span>
                 </div>
                 <div id="products" class="products-grid"></div>
             </section>
 
             <aside class="cart-panel">
-                <div class="section-heading">
-                    <h2>Cart</h2>
-                    <p>Review your order before checkout.</p>
+                <div class="section-heading cart-heading">
+                    <span class="section-kicker">At the checkout</span>
+                    <h2><span class="heading-icon" aria-hidden="true">🛒</span> Cart</h2>
+                    <p>Review your basket before paying.</p>
                 </div>
                 <div id="cart" class="cart-items"></div>
                 <div class="cart-footer">
                     <div class="total-row">
-                        <span>Total</span>
+                        <span>Order total</span>
                         <strong id="total">₱0</strong>
                     </div>
-                    <button class="checkout-btn" type="button">Checkout</button>
+                    <button class="checkout-btn" type="button" onclick="checkout()"><span aria-hidden="true">🛍</span> Checkout <span aria-hidden="true">→</span></button>
                 </div>
             </aside>
         </main>
+
+        <!-- Receipt Modal -->
+        <div id="receiptModal" class="modal">
+            <div class="modal-content receipt-content">
+                <div class="modal-header">
+                    <h2>Order Receipt</h2>
+                    <button class="close-btn" onclick="closeReceiptModal()">&times;</button>
+                </div>
+                <div id="receipt" class="receipt"></div>
+                <div class="receipt-actions">
+                    <button class="print-btn" type="button" onclick="printReceipt()">Print Receipt</button>
+                    <button class="close-receipt-btn" type="button" onclick="closeReceiptModal()">Done</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Orders Modal -->
+        <div id="ordersModal" class="modal">
+            <div class="modal-content orders-content">
+                <div class="modal-header">
+                    <h2>Customer Orders</h2>
+                    <div class="orders-header-actions">
+                        <button class="clear-orders-btn" type="button" onclick="clearAllOrders()">Clear All</button>
+                        <button class="close-btn" onclick="closeOrdersModal()">&times;</button>
+                    </div>
+                </div>
+                <div id="ordersList" class="orders-list"></div>
+            </div>
+        </div>
 
         <!-- Add Item Modal -->
         <div id="addItemModal" class="modal">
