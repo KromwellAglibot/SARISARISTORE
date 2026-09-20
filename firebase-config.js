@@ -1,5 +1,5 @@
 const firebaseConfig = {
-    apiKey: "AIzaSyCcXZmVKWv8r6Z1tAqsdIVDclZQmcN1e",
+    apiKey: "AIzaSyCcXZmVKWv8r6Z1tAqsdTvIDc1ZqPmcNI0",
     authDomain: "sari-sari-store-99c29.firebaseapp.com",
     projectId: "sari-sari-store-99c29",
     storageBucket: "sari-sari-store-99c29.firebasestorage.app",
