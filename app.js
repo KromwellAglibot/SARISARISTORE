@@ -253,7 +253,7 @@ async function completeCheckout(event) {
             <span>Total paid</span>
             <strong>₱${total}</strong>
         </div>
-        <p class="receipt-thanks">Thank you for shopping at RC Sari-Sari Store!</p>
+        <p class="receipt-thanks">Thank you for shopping at Sari-Sari Store!</p>
     `;
 
     cart.length = 0;
