@@ -303,7 +303,16 @@ async function handleLogin(event) {
         closeLoginModal();
     } catch (error) {
         console.error("Admin login failed:", error);
-        alert("Invalid email or password.");
+        const loginMessages = {
+            "auth/invalid-credential": "The email or password is incorrect.",
+            "auth/user-not-found": "No Firebase user exists with this email.",
+            "auth/wrong-password": "The password is incorrect.",
+            "auth/invalid-email": "Enter a valid email address.",
+            "auth/unauthorized-domain": "This website domain is not authorized in Firebase Authentication.",
+            "auth/network-request-failed": "Firebase could not connect. Check your internet connection.",
+            "auth/too-many-requests": "Too many attempts. Wait a moment and try again."
+        };
+        alert(loginMessages[error.code] || `Login failed: ${error.code || "unknown error"}`);
         loginForm.reset();
     }
 }
